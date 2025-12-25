@@ -29,34 +29,73 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.app_name,
     description="""
-## QA Testing API
+A sandbox REST API designed for **manual QA testing practice**. Use this API to test
+CRUD operations, authentication flows, authorization rules, validation, and error handling.
 
-A complete REST API for manual QA testing with:
-- **Authentication** (JWT tokens)
-- **Role-based authorization** (admin, tester, viewer)
-- **Full CRUD** operations
-- **Relationships** between entities
-- **Filtering, pagination, sorting**
-- **Data reset** capability
+---
 
-### Test Credentials
+## Domain Model
 
-| Username | Password | Role |
-|----------|----------|------|
-| admin | admin123 | Admin (full access) |
-| tester | tester123 | Tester (CRUD operations) |
-| viewer | viewer123 | Viewer (read-only) |
+Simple e-commerce domain with four entities:
 
-### Quick Start
+| Entity | Description | Relationships |
+|--------|-------------|---------------|
+| **Users** | Test accounts with roles | Has many Orders |
+| **Categories** | Product groupings | Has many Products |
+| **Products** | Items with price, stock, SKU | Belongs to Category |
+| **Orders** | Purchase records | Belongs to User, has many Products |
 
-1. Login via `POST /auth/login` with username/password
-2. Copy the `access_token` from response
-3. Click "Authorize" button and paste the token (without "Bearer " prefix)
-4. Start testing!
+---
 
-### Reset Data
+## Authorization Matrix
 
-Use `POST /admin/reset` (admin only) to restore database to initial state.
+| Role | Users | Categories | Products | Orders | Admin |
+|------|-------|------------|----------|--------|-------|
+| **admin** | CRUD | CRUD | CRUD | CRUD (all) | Yes |
+| **tester** | Read | CRUD | CRUD | CRUD (all) | No |
+| **viewer** | Read | Read | Read | Read (own only) | No |
+
+---
+
+## Test Credentials
+
+| Username | Password | Role | Use for testing... |
+|----------|----------|------|-------------------|
+| `admin` | `admin123` | Admin | Full access, data reset |
+| `tester` | `tester123` | Tester | Standard CRUD workflows |
+| `viewer` | `viewer123` | Viewer | Read-only, 403 scenarios |
+
+---
+
+## Quick Start
+
+1. **Login**: `POST /auth/login` with `{"username":"tester","password":"tester123"}`
+2. **Copy** the `access_token` from response
+3. **Authorize**: Click 🔓 button above, paste token (no "Bearer" prefix needed)
+4. **Test**: All endpoints now authenticated
+
+---
+
+## Testing Scenarios
+
+**Happy Path**: Login → Create category → Create product → Create order → Verify
+
+**Validation**: Missing fields, invalid email, negative price, duplicate SKU
+
+**Authorization**: Viewer creating resources (expect 403), accessing others' orders
+
+**Edge Cases**: Empty results, non-existent IDs (404), inactive products in orders
+
+**Data Reset**: `POST /admin/reset` restores database to initial seeded state
+
+---
+
+## Seeded Data
+
+- 3 users (admin, tester, viewer)
+- 5 categories (Electronics, Clothing, Home & Garden, Books, Sports)
+- 20 products with realistic prices and stock
+- 10 orders in various statuses (pending, confirmed, shipped, delivered, cancelled)
     """,
     version="1.0.0",
     lifespan=lifespan,
