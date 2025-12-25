@@ -32,10 +32,11 @@ def create_access_token(data: dict) -> str:
 def decode_token(token: str) -> TokenData | None:
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
-        user_id: int = payload.get("sub")
+        sub = payload.get("sub")
         role: str = payload.get("role")
-        if user_id is None:
+        if sub is None:
             return None
+        user_id = int(sub)
         return TokenData(user_id=user_id, role=UserRole(role) if role else None)
     except JWTError:
         return None

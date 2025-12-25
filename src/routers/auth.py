@@ -33,7 +33,7 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
             detail="User account is deactivated",
         )
 
-    token = create_access_token({"sub": user.id, "role": user.role.value})
+    token = create_access_token({"sub": str(user.id), "role": user.role.value})
     return Token(access_token=token)
 
 
