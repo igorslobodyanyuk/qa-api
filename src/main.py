@@ -51,7 +51,7 @@ A complete REST API for manual QA testing with:
 
 1. Login via `POST /auth/login` with username/password
 2. Copy the `access_token` from response
-3. Click "Authorize" button and paste: `Bearer <token>`
+3. Click "Authorize" button and paste the token (without "Bearer " prefix)
 4. Start testing!
 
 ### Reset Data
